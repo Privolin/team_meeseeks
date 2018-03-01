@@ -30,8 +30,12 @@ R – number of rows of the grid (1 ≤ R ≤ 10000)
 ● B – per-ride bonus for starting the ride on time (1 ≤ B ≤ 10000)
 ● T – number of steps in the simulation (1 ≤ T ≤ 10 )
 '''
+#data = open('a_example.in','r')
+data = open('b_should_be_easy.in', 'r')
+#data = open('c_no_hurry.in','r')
+#data = open('d_metropolis.in','r')
+#data = open('e_high_bonus.in','r')
 
-data = open('c_no_hurry.in', 'r')
 lines = data.readlines()
 data.close()
 # parameters
@@ -48,7 +52,7 @@ for i in range(N + 1):
     if i == 0:
         continue
     else:
-        print(lines[i][0:-1])
+        #print(lines[i][0:-1])
         data.append( (lines[i][:-1]).split(' '))
 
 city = np.array(data)
@@ -97,8 +101,34 @@ Algotrithms
 """
 
 
-for i in range(len(sorted_data)):
-    cars[i%F,i] = sorted_data.loc[sorted_data['new_index'] == i,'orig_index']
+#for i in range(len(sorted_data)):
+#    cars[i%F,i] = sorted_data.loc[sorted_data['new_index'] == i,'orig_index']
+    
+for i in range(T):
+    for k in range(F):
+        if cars[k,i] == -1:
+            trips = set(cars[k])
+            trips.remove(-1)
+            pos = []
+            if len(trips) == 0:
+                pos = np.array([[0,0]])
+            else:
+                pos = np.array(sorted_data.loc[sorted_data['orig_index'] == max(trips), ['x2','y2']])
+            
+            temp = sorted_data.loc[sorted_data['used'] == 0 ]
+            
+            temp['temp'] = abs(pos[0][0]-temp['x1']) +  abs(pos[0][1]-temp['y1'])
+            temp = temp.loc[temp['temp'] == (temp['temp'].min())]
+            temp = (temp.loc[sorted_data['used'] == 0 ]).head(1)
+            if len(temp) == 0:
+                continue
+            else:
+                dist = list(temp['dist'])[0]
+                cars[k,(i+dist)] = temp['orig_index']
+                sorted_data.loc[sorted_data['new_index'] == list(temp['new_index'])[0],'used'] = 1
+                
+        else:
+            continue
     
 
 
