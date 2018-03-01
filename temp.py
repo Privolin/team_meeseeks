@@ -10,17 +10,11 @@ import numpy as np
 def hello():
     print(f'Hello, team {teamName}!')
 
-
 hello()
 
 
 
-def calc_dist (start,end):
 
-    x = abs(start[0] - end[0])
-    y = abs(start[1] - end[1])
-
-    return x+y
 '''
 R – number of rows of the grid (1 ≤ R ≤ 10000)
 ● C – number of columns of the grid (1 ≤ C ≤ 10000)
@@ -30,7 +24,7 @@ R – number of rows of the grid (1 ≤ R ≤ 10000)
 ● T – number of steps in the simulation (1 ≤ T ≤ 10 )
 '''
 
-data = open('a_example.in', 'r')
+data = open('e_high_bonus.in', 'r')
 lines = data.readlines()
 data.close()
 # parameters
@@ -43,7 +37,7 @@ B = int(line1[4])
 T = int(line1[5][:-1])
 
 data = []
-for i in range(R + 1):
+for i in range(N + 1):
     if i == 0:
         continue
     else:
@@ -70,27 +64,33 @@ import pandas as pd
 Converting to DataFrame
 
 '''
-cols = ['x1','y1','x2','y2','start','end'] #cols for dataframe
+cols = ['x1','y1','x2','y2','early_start','end'] #cols for dataframe
 trip_data = pd.DataFrame(city,columns = cols)
 
 trip_data['dist'] = abs(trip_data['x1']-trip_data['x2']) +  abs(trip_data['y1']-trip_data['y2'])
-trip_data['time'] = abs(trip_data['start'] - trip_data['end']) 
-
-avail = trip_data.loc[trip_data['start'] >= 2]
-
-
+trip_data['time'] = abs(trip_data['early_start'] - trip_data['end']) 
+trip_data['late_start'] = (trip_data['time'] - trip_data['dist']) + trip_data['early_start']
+trip_data['possible'] = trip_data['late_start'] - trip_data['x1'] - trip_data['y1']
+trip_data['orig_index'] = np.arange(len(trip_data))
+sorted_data = trip_data.loc[trip_data['possible'] >= 0].sort_values(['early_start','dist','late_start'])
+sorted_data['new_index'] = np.arange(len(sorted_data))
+sorted_data
 cars= np.zeros([F, T])
 cars.fill(-1)
 cars = cars.astype(np.int64)
 
 
-
+def get_trip():
+    return 0
 
 """
 Algotrithms
+
 """
 
 
+for i in range(len(sorted_data)):
+    cars[i%F,i] = sorted_data.loc[sorted_data['new_index'] == i,'orig_index']
 
 
 
@@ -99,6 +99,10 @@ Algotrithms
 
 
 
+"""
+Output File
+
+"""
 
 def output(cars):
     wrt = ''
@@ -106,7 +110,7 @@ def output(cars):
     for i in range(len(cars)):
         trips = set(cars[i])
         trips.remove(-1)
-        print(trips)
+        #print(trips)
         t =  ' '.join([str(x) for x in list(trips)])
         wrt += ' '.join([str(len(trips)),t, '\n'])
         
